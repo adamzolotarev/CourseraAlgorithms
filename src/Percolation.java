@@ -12,7 +12,7 @@ public class Percolation {
     }
 
     private void validateRowColumn(int row, int column) {
-        if (row < 1 || column < 1 || row > _gridLength || column >_gridLength) {
+        if (row < 1 || column < 1 || row > _gridLength || column > _gridLength) {
             throw new java.lang.IndexOutOfBoundsException();
         }
     }
@@ -54,7 +54,7 @@ public class Percolation {
     }
 
     private boolean isBottomLevelSite(Site site) {
-        return site.Id == _sites.length;
+        return site.Id == _sites.length - 1;
     }
 
     public boolean isOpen(int row, int column) {
@@ -141,4 +141,3 @@ public class Percolation {
         public int Id;
     }
 }
-
