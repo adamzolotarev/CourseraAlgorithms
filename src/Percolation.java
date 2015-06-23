@@ -5,8 +5,16 @@ public class Percolation {
     private QuickUnionUF _sortingAlgorithm;
 
     public Percolation(int gridLength) {
+        if (gridLength <= 0) throw new java.lang.IllegalArgumentException();
+
         _gridLength = gridLength;
         initialize();
+    }
+
+    private void validateRowColumn(int row, int column) {
+        if (row < 1 || column < 1 || row > _gridLength || column >_gridLength) {
+            throw new java.lang.IndexOutOfBoundsException();
+        }
     }
 
     private void initialize() {
@@ -22,6 +30,7 @@ public class Percolation {
     }
 
     public void open(int row, int column) {
+        validateRowColumn(row, column);
         Site correspondingSite = getSiteFromCoordinates(row, column);
         if (correspondingSite.IsOpen) return;
 
@@ -49,11 +58,13 @@ public class Percolation {
     }
 
     public boolean isOpen(int row, int column) {
+        validateRowColumn(row, column);
         Site site = getSiteFromCoordinates(row, column);
         return site.IsOpen;
     }
 
     public boolean isFull(int row, int column) {
+        validateRowColumn(row, column);
         Site correspondingSite = getSiteFromCoordinates(row, column);
         if (!correspondingSite.IsOpen) return false;
 
@@ -75,7 +86,7 @@ public class Percolation {
         neighborSites[index] = topSite;
         index++;
 
-        Site bottomSite = GetBottomSite(row, column);
+        Site bottomSite = getBottomSite(row, column);
         neighborSites[index] = bottomSite;
         index++;
 
@@ -92,7 +103,7 @@ public class Percolation {
         return neighborSites;
     }
 
-    private Site GetBottomSite(int row, int column) {
+    private Site getBottomSite(int row, int column) {
         if (isLastRow(row)) {
             Site bottomVirtualSite = _sites[_sites.length - 1];
             return bottomVirtualSite;
@@ -116,16 +127,18 @@ public class Percolation {
         return _sites[siteIndex];
     }
 
-    boolean isFirstRow(int row) {
+    private boolean isFirstRow(int row) {
         return row == 1;
     }
 
-    boolean isLastRow(int row) {
+    private boolean isLastRow(int row) {
         return row == _gridLength;
+    }
+
+
+    class Site {
+        public boolean IsOpen;
+        public int Id;
     }
 }
 
-class Site{
-    public boolean IsOpen;
-    public int Id;
-}
