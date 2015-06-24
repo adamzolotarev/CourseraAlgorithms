@@ -29,9 +29,7 @@ public class Percolation {
         _sortingAlgorithm = new QuickUnionUF(numberOfSites);
     }
 
-    int counter;
     public void open(int row, int column) {
-        counter++;
         validateRowColumn(row, column);
         Site correspondingSite = getSiteFromCoordinates(row, column);
         if (correspondingSite.IsOpen) return;
