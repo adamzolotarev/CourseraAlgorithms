@@ -29,7 +29,9 @@ public class Percolation {
         _sortingAlgorithm = new QuickUnionUF(numberOfSites);
     }
 
+    int counter;
     public void open(int row, int column) {
+        counter++;
         validateRowColumn(row, column);
         Site correspondingSite = getSiteFromCoordinates(row, column);
         if (correspondingSite.IsOpen) return;
@@ -37,7 +39,7 @@ public class Percolation {
         Site[] sitesToConnect = getNeighborSites(row, column);
 
         for (Site site : sitesToConnect) {
-            if (shouldConnectSite(site)) {
+            if (shouldConnectSite(site, row, column)) {
                 _sortingAlgorithm.union(site.Id, correspondingSite.Id);
             }
         }
@@ -45,8 +47,11 @@ public class Percolation {
         correspondingSite.IsOpen = true;
     }
 
-    private boolean shouldConnectSite(Site site) {
-        return site != null && (isTopLevelSite(site) || isBottomLevelSite(site) || site.IsOpen);
+    private boolean shouldConnectSite(Site site, int row, int column) {
+        return site != null &&
+                (isTopLevelSite(site)
+                        || (isBottomLevelSite(site) && isFull(row, column))
+                        || site.IsOpen);
     }
 
     private boolean isTopLevelSite(Site site) {
