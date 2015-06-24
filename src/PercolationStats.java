@@ -3,10 +3,12 @@ public class PercolationStats {
     private double _standardDeviation;
     private double _confidenceLevelLow;
     private double _confidenceLevelHigh;
+    private int _numberOfExperiments;
 
     public PercolationStats(int gridLength, int numberOfExperiments) {
         if (gridLength <= 0 || numberOfExperiments <= 0) throw new IllegalArgumentException();
 
+        _numberOfExperiments = numberOfExperiments;
         runExperiment(gridLength, numberOfExperiments);
     }
 
@@ -33,8 +35,8 @@ public class PercolationStats {
     private void CalculateStatistics(double[] openToTotalRations) {
         _mean = StdStats.mean(openToTotalRations);
         _standardDeviation = StdStats.stddev(openToTotalRations);
-        _confidenceLevelLow = _mean - 1.96 * _standardDeviation;
-        _confidenceLevelHigh = _mean + 1.96 * _standardDeviation;
+        _confidenceLevelLow = _mean - 1.96 * _standardDeviation/Math.sqrt(_numberOfExperiments);
+        _confidenceLevelHigh = _mean + 1.96 * _standardDeviation/Math.sqrt(_numberOfExperiments);
     }
 
     public double mean() {
