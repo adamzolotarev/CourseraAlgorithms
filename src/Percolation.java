@@ -76,9 +76,19 @@ public class Percolation {
     }
 
     public boolean percolates() {
+        connectBottomSitesWhenFull();
         int firstVirtualSiteId = _sites[0].Id;
         int lastVirtualSiteId = _sites[_sites.length - 1].Id;
         return _sortingAlgorithm.connected(firstVirtualSiteId, lastVirtualSiteId);
+    }
+
+    private void connectBottomSitesWhenFull(){
+        for (int column = 1; column <_gridLength; column ++){
+            if(isFull(_gridLength, column))  {
+                Site site = getSiteFromCoordinates(_gridLength, column);
+                _sortingAlgorithm.union(site.Id, _sites[_sites.length - 1].Id);
+            }
+        }
     }
 
     private Site[] getNeighborSites(int row, int column) {
