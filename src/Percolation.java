@@ -1,7 +1,6 @@
 public class Percolation {
-    private Site[] _sites;
+    private boolean[] _sites;
     private int _gridLength;
-
     private QuickUnionUF _sortingAlgorithm;
 
     public Percolation(int gridLength) {
@@ -20,124 +19,114 @@ public class Percolation {
     private void initialize() {
         int numberOfVirtualSites = 2;
         int numberOfSites = _gridLength * _gridLength + numberOfVirtualSites;
-        _sites = new Site[numberOfSites];
-        for (int i = 0; i < numberOfSites; i++) {
-            Site site = new Site();
-            site.Id = i;
-            _sites[i] = site;
-        }
+        _sites = new boolean[numberOfSites];
         _sortingAlgorithm = new QuickUnionUF(numberOfSites);
     }
 
     public void open(int row, int column) {
         validateRowColumn(row, column);
-        Site correspondingSite = getSiteFromCoordinates(row, column);
-        if (correspondingSite.IsOpen) return;
+        int correspondingSiteIndex = getSiteIndexFromCoordinates(row, column);
+        boolean correspondingSite = _sites[correspondingSiteIndex];
+        if (correspondingSite) return;
 
-        Site[] sitesToConnect = getNeighborSites(row, column);
+        int[] siteIndicesToConnect = getNeighborSites(row, column);
 
-        for (Site site : sitesToConnect) {
-            if (shouldConnectSite(site, row, column)) {
-                _sortingAlgorithm.union(site.Id, correspondingSite.Id);
+        for (int siteIndex : siteIndicesToConnect) {
+            if (shouldConnectSite(siteIndex, row, column)) {
+                _sortingAlgorithm.union(siteIndex, correspondingSiteIndex);
             }
         }
 
-        correspondingSite.IsOpen = true;
+        _sites[correspondingSiteIndex]=true;
     }
 
-    private boolean shouldConnectSite(Site site, int row, int column) {
-        return site != null &&
-                (isTopLevelSite(site)
-                        || (isBottomLevelSite(site) && isFull(row, column))
-                        || site.IsOpen);
+    private boolean shouldConnectSite(int siteIndex, int row, int column) {
+        return siteIndex != -1 &&
+                (isTopLevelSite(siteIndex)
+                        || (isBottomLevelSite(siteIndex) && isFull(row, column))
+                        || _sites[siteIndex]);
     }
 
-    private boolean isTopLevelSite(Site site) {
-        return site.Id == 0;
+    private boolean isTopLevelSite(int siteIndex) {
+        return siteIndex == 0;
     }
 
-    private boolean isBottomLevelSite(Site site) {
-        return site.Id == _sites.length - 1;
+    private boolean isBottomLevelSite(int siteIndex) {
+        return siteIndex == _sites.length - 1;
     }
 
     public boolean isOpen(int row, int column) {
         validateRowColumn(row, column);
-        Site site = getSiteFromCoordinates(row, column);
-        return site.IsOpen;
+        return _sites[getSiteIndexFromCoordinates(row, column)];
     }
 
     public boolean isFull(int row, int column) {
         validateRowColumn(row, column);
-        Site correspondingSite = getSiteFromCoordinates(row, column);
-        if (!correspondingSite.IsOpen) return false;
+        return isFullWithoutValidation(row, column);
+    }
+
+    private boolean isFullWithoutValidation(int row, int column){
+        int correspondingSiteIndex = getSiteIndexFromCoordinates(row, column);
+        if (!_sites[correspondingSiteIndex]) return false;
 
         int topLevelSiteId = 0;
-        return _sortingAlgorithm.connected(topLevelSiteId, correspondingSite.Id);
+        return _sortingAlgorithm.connected(topLevelSiteId, correspondingSiteIndex);
     }
 
     public boolean percolates() {
         connectBottomSitesWhenFull();
-        int firstVirtualSiteId = _sites[0].Id;
-        int lastVirtualSiteId = _sites[_sites.length - 1].Id;
-        return _sortingAlgorithm.connected(firstVirtualSiteId, lastVirtualSiteId);
+        return _sortingAlgorithm.connected(0, _sites.length-1);
     }
 
     private void connectBottomSitesWhenFull(){
-        for (int column = 1; column <_gridLength; column ++){
-            if(isFull(_gridLength, column))  {
-                Site site = getSiteFromCoordinates(_gridLength, column);
-                _sortingAlgorithm.union(site.Id, _sites[_sites.length - 1].Id);
+        for (int column = 1; column <=_gridLength; column ++){
+            if(isFullWithoutValidation(_gridLength, column))  {
+                int siteIndex = getSiteIndexFromCoordinates(_gridLength, column);
+                _sortingAlgorithm.union(siteIndex, _sites.length - 1);
             }
         }
     }
 
-    private Site[] getNeighborSites(int row, int column) {
-        Site[] neighborSites = new Site[4];
-        int index = 0;
-
-        Site topSite = GetTopNeighborSite(row, column);
-        neighborSites[index] = topSite;
-        index++;
-
-        Site bottomSite = getBottomSite(row, column);
-        neighborSites[index] = bottomSite;
-        index++;
+    private int[] getNeighborSites(int row, int column) {
+        int[] neighborSites = new int[4];
+        neighborSites[0] = GetTopNeighborSite(row, column);
+        neighborSites[1] = getBottomSite(row, column);
 
         if (column != _gridLength) {
-            Site siteOnTheRight = getSiteFromCoordinates(row, column + 1);
-            neighborSites[index] = siteOnTheRight;
-            index++;
+            neighborSites[2] = getSiteIndexFromCoordinates(row, column + 1);
+        }
+        else{
+            neighborSites[2] = -1;//stupid way of doing this. But, time.
         }
         if (column != 1) {
-            Site siteOnTheLeft = getSiteFromCoordinates(row, column - 1);
-            neighborSites[index] = siteOnTheLeft;
+            neighborSites[3] = getSiteIndexFromCoordinates(row, column - 1);
+        }
+        else{
+            neighborSites[3] = getSiteIndexFromCoordinates(row, column + 1);
         }
 
         return neighborSites;
     }
 
-    private Site getBottomSite(int row, int column) {
+    private int getBottomSite(int row, int column) {
         if (isLastRow(row)) {
-            Site bottomVirtualSite = _sites[_sites.length - 1];
-            return bottomVirtualSite;
+            return _sites.length - 1;
         }
 
-        return getSiteFromCoordinates(row + 1, column);
+        return getSiteIndexFromCoordinates(row + 1, column);
     }
 
-    private Site GetTopNeighborSite(int row, int column) {
+    private int GetTopNeighborSite(int row, int column) {
         if (isFirstRow(row)) {
-            Site topVirualSite = _sites[0];
-            return topVirualSite;
+            return 0;
         }
 
-        Site topNeighbor = getSiteFromCoordinates(row - 1, column);
+        int topNeighbor = getSiteIndexFromCoordinates(row - 1, column);
         return topNeighbor;
     }
 
-    private Site getSiteFromCoordinates(int row, int column) {
-        int siteIndex = (row - 1) * _gridLength + column;
-        return _sites[siteIndex];
+    private int getSiteIndexFromCoordinates(int row, int column){
+        return (row - 1) * _gridLength + column;
     }
 
     private boolean isFirstRow(int row) {
@@ -146,11 +135,5 @@ public class Percolation {
 
     private boolean isLastRow(int row) {
         return row == _gridLength;
-    }
-
-
-    private class Site {
-        public boolean IsOpen;
-        public int Id;
     }
 }
