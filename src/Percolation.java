@@ -139,7 +139,7 @@ public class Percolation {
     }
 
 
-    class Site {
+    private class Site {
         public boolean IsOpen;
         public int Id;
     }
