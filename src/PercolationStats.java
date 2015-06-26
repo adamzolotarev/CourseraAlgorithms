@@ -1,14 +1,14 @@
 public class PercolationStats {
-    private double _mean;
-    private double _standardDeviation;
-    private double _confidenceLevelLow;
-    private double _confidenceLevelHigh;
-    private int _numberOfExperiments;
+    private double mean;
+    private double standardDeviation;
+    private double confidenceLevelLow;
+    private double confidenceLevelHigh;
+    private int numberOfExperiments;
 
     public PercolationStats(int gridLength, int numberOfExperiments) {
         if (gridLength <= 0 || numberOfExperiments <= 0) throw new IllegalArgumentException();
 
-        _numberOfExperiments = numberOfExperiments;
+        this.numberOfExperiments = numberOfExperiments;
         runExperiment(gridLength, numberOfExperiments);
     }
 
@@ -20,39 +20,38 @@ public class PercolationStats {
             while (!percolation.percolates()) {
                 int row = StdRandom.uniform(1, gridLength + 1);
                 int column = StdRandom.uniform(1, gridLength + 1);
-                if(!percolation.isOpen(row, column))
-                {
+                if (!percolation.isOpen(row, column)) {
                     percolation.open(row, column);
                     numberOfOpenSites++;
                 }
             }
-            openToTotalRations[i]= (double)numberOfOpenSites/(double)(gridLength*gridLength);
+            openToTotalRations[i] = (double) numberOfOpenSites / (double) (gridLength * gridLength);
         }
 
         CalculateStatistics(openToTotalRations);
     }
 
     private void CalculateStatistics(double[] openToTotalRations) {
-        _mean = StdStats.mean(openToTotalRations);
-        _standardDeviation = StdStats.stddev(openToTotalRations);
-        _confidenceLevelLow = _mean - 1.96 * _standardDeviation/Math.sqrt(_numberOfExperiments);
-        _confidenceLevelHigh = _mean + 1.96 * _standardDeviation/Math.sqrt(_numberOfExperiments);
+        mean = StdStats.mean(openToTotalRations);
+        standardDeviation = StdStats.stddev(openToTotalRations);
+        confidenceLevelLow = mean - 1.96 * standardDeviation / Math.sqrt(numberOfExperiments);
+        confidenceLevelHigh = mean + 1.96 * standardDeviation / Math.sqrt(numberOfExperiments);
     }
 
     public double mean() {
-        return _mean;
+        return mean;
     }
 
     public double stddev() {
-        return _standardDeviation;
+        return standardDeviation;
     }
 
     public double confidenceLo() {
-        return _confidenceLevelLow;
+        return confidenceLevelLow;
     }
 
     public double confidenceHi() {
-        return _confidenceLevelHigh;
+        return confidenceLevelHigh;
     }
 
     public static void main(String[] args) {
@@ -60,10 +59,10 @@ public class PercolationStats {
         int numberOfExperiments = Integer.parseInt(args[1]);
 
         //Stopwatch stopwatch = new Stopwatch();
-        PercolationStats stats = new PercolationStats(gridLength,numberOfExperiments);
+        PercolationStats stats = new PercolationStats(gridLength, numberOfExperiments);
         //StdOut.println(stopwatch.elapsedTime());
         StdOut.println("mean                    = " + stats.mean());
         StdOut.println("stddev                  = " + stats.stddev());
-        StdOut.println("95% confidence interval =" + stats.confidenceLo() +","+stats.confidenceHi());
+        StdOut.println("95% confidence interval =" + stats.confidenceLo() + "," + stats.confidenceHi());
     }
 }
