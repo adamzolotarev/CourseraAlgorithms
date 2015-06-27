@@ -3,6 +3,7 @@ public class Percolation {
     private int gridLength;
     private QuickUnionUF sortingAlgorithm;
     private QuickUnionUF sortingAlgorithmForFull;
+    private int lastSiteIndex;
 
     public Percolation(int gridLength) {
         if (gridLength <= 0) throw new java.lang.IllegalArgumentException();
@@ -21,6 +22,9 @@ public class Percolation {
         int numberOfVirtualSites = 2;
         int numberOfSites = gridLength * gridLength + numberOfVirtualSites;
         sites = new boolean[numberOfSites];
+        lastSiteIndex = sites.length -1;
+        sites[0] = true;
+        sites[lastSiteIndex] = true;
         sortingAlgorithm = new QuickUnionUF(numberOfSites);
         sortingAlgorithmForFull = new QuickUnionUF((numberOfSites - 1));
     }
@@ -31,33 +35,38 @@ public class Percolation {
         boolean correspondingSite = sites[correspondingSiteIndex];
         if (correspondingSite) return;
 
-        int[] siteIndicesToConnect = getNeighborSites(row, column);
+        int top = getTopNeighborSite(row, column);
+        if (sites[top]) {
+            connectSites(top, correspondingSiteIndex);
+        }
 
-        for (int siteIndex : siteIndicesToConnect) {
-            if (shouldConnectSite(siteIndex, row, column)) {
-                sortingAlgorithm.union(siteIndex, correspondingSiteIndex);
-                if (siteIndex < sites.length - 1) {
-                    sortingAlgorithmForFull.union(siteIndex, correspondingSiteIndex);
-                }
+        int bottom = getBottomSite(row, column);
+        if (sites[bottom]) {
+            connectSites(bottom, correspondingSiteIndex);
+        }
+
+        if (column != gridLength) {
+            int rightSide = getSiteIndexFromCoordinates(row, column + 1);
+            if (sites[rightSide]) {
+                connectSites(rightSide, correspondingSiteIndex);
+            }
+        }
+
+        if (column != 1) {
+            int leftSide = getSiteIndexFromCoordinates(row, column - 1);
+            if (sites[leftSide]) {
+                connectSites(leftSide, correspondingSiteIndex);
             }
         }
 
         sites[correspondingSiteIndex] = true;
     }
 
-    private boolean shouldConnectSite(int siteIndex, int row, int column) {
-        return siteIndex != -1 &&
-                (isTopLevelSite(siteIndex)
-                        || sites[siteIndex])
-                || (isBottomLevelSite(siteIndex));
-    }
-
-    private boolean isTopLevelSite(int siteIndex) {
-        return siteIndex == 0;
-    }
-
-    private boolean isBottomLevelSite(int siteIndex) {
-        return siteIndex == sites.length - 1;
+    private void connectSites(int neighborSiteIndex, int correspondingSiteIndex) {
+        sortingAlgorithm.union(neighborSiteIndex, correspondingSiteIndex);
+        if (neighborSiteIndex < lastSiteIndex) {
+            sortingAlgorithmForFull.union(neighborSiteIndex, correspondingSiteIndex);
+        }
     }
 
     public boolean isOpen(int row, int column) {
@@ -74,36 +83,16 @@ public class Percolation {
         int correspondingSiteIndex = getSiteIndexFromCoordinates(row, column);
         if (!sites[correspondingSiteIndex]) return false;
 
-        int topLevelSiteId = 0;
-        return sortingAlgorithmForFull.connected(topLevelSiteId, correspondingSiteIndex);
+        return sortingAlgorithmForFull.connected(0, correspondingSiteIndex);
     }
 
     public boolean percolates() {
-        return sortingAlgorithm.connected(0, sites.length - 1);
-    }
-
-    private int[] getNeighborSites(int row, int column) {
-        int[] neighborSites = new int[4];
-        neighborSites[0] = getTopNeighborSite(row, column);
-        neighborSites[1] = getBottomSite(row, column);
-
-        if (column != gridLength) {
-            neighborSites[2] = getSiteIndexFromCoordinates(row, column + 1);
-        } else {
-            neighborSites[2] = -1;//stupid way of doing this. But, time.
-        }
-        if (column != 1) {
-            neighborSites[3] = getSiteIndexFromCoordinates(row, column - 1);
-        } else {
-            neighborSites[3] = getSiteIndexFromCoordinates(row, column + 1);
-        }
-
-        return neighborSites;
+        return sortingAlgorithm.connected(0, lastSiteIndex);
     }
 
     private int getBottomSite(int row, int column) {
         if (isLastRow(row)) {
-            return sites.length - 1;
+            return lastSiteIndex;
         }
 
         return getSiteIndexFromCoordinates(row + 1, column);
