@@ -24,7 +24,7 @@ public class Percolation {
         lastSiteIndex = numberOfSites - 1;
         sortingAlgorithm = new QuickUnionUF(numberOfSites);
         sortingAlgorithmForFull = new QuickUnionUF((numberOfSites - 1));
-        openSites = new boolean[gridLength][gridLength];
+        openSites = new boolean[gridLength+1][gridLength+1];
     }
 
     private int GetIndex(int row, int column, int retrievedIndex) {
@@ -36,29 +36,27 @@ public class Percolation {
 
     public void open(int row, int column) {
         validateRowColumn(row, column);
-        int adjustedRow = row - 1;
-        int adjustedColumn = column - 1;
-        if (openSites[adjustedRow][adjustedColumn]) return;
+        if (openSites[row][column]) return;
         int correspondingSiteIndex = 0;
 
         if (isFirstRow(row)) {
             correspondingSiteIndex = GetIndex(row, column, correspondingSiteIndex);
             connectSites(0, correspondingSiteIndex);
-            if (gridLength > 1 && openSites[adjustedRow + 1][adjustedColumn] || gridLength == 1) {
+            if (gridLength > 1 && openSites[row + 1][column] || gridLength == 1) {
                 connectSites(getSiteIndexFromCoordinates(row + 1, column), correspondingSiteIndex);
             }
         } else if (isLastRow(row)) {
             correspondingSiteIndex = GetIndex(row, column, correspondingSiteIndex);
             connectSites(lastSiteIndex, correspondingSiteIndex);
-            if (gridLength > 1 && openSites[adjustedRow - 1][adjustedColumn]) {
+            if (gridLength > 1 && openSites[row - 1][column]) {
                 connectSites(getSiteIndexFromCoordinates(row - 1, column), correspondingSiteIndex);
             }
         } else {
-            if (openSites[adjustedRow + 1][adjustedColumn]) {
+            if (openSites[row + 1][column]) {
                 correspondingSiteIndex = GetIndex(row, column, correspondingSiteIndex);
                 connectSites(correspondingSiteIndex + gridLength, correspondingSiteIndex);
             }
-            if (openSites[adjustedRow - 1][adjustedColumn]) {
+            if (openSites[row - 1][column]) {
                 correspondingSiteIndex = GetIndex(row, column, correspondingSiteIndex);
                 connectSites(correspondingSiteIndex - gridLength, correspondingSiteIndex);
             }
@@ -66,27 +64,27 @@ public class Percolation {
 
         if (gridLength > 1) {
             if (column == gridLength) {
-                if (openSites[adjustedRow][adjustedColumn - 1]) {
+                if (openSites[row][column - 1]) {
                     correspondingSiteIndex = GetIndex(row, column, correspondingSiteIndex);
                     connectSites(getSiteIndexFromCoordinates(row, column - 1), correspondingSiteIndex);
                 }
             } else if (column == 1) {
-                if (openSites[adjustedRow][adjustedColumn + 1]) {
+                if (openSites[row][column + 1]) {
                     correspondingSiteIndex = GetIndex(row, column, correspondingSiteIndex);
                     connectSites(getSiteIndexFromCoordinates(row, column + 1), correspondingSiteIndex);
                 }
             } else {
-                if (openSites[adjustedRow][adjustedColumn - 1]) {
+                if (openSites[row][column - 1]) {
                     correspondingSiteIndex = GetIndex(row, column, correspondingSiteIndex);
                     connectSites(correspondingSiteIndex - 1, correspondingSiteIndex);
                 }
-                if (openSites[adjustedRow][adjustedColumn + 1]) {
+                if (openSites[row][column + 1]) {
                     correspondingSiteIndex = GetIndex(row, column, correspondingSiteIndex);
                     connectSites(correspondingSiteIndex + 1, correspondingSiteIndex);
                 }
             }
         }
-        openSites[adjustedRow][adjustedColumn] = true;
+        openSites[row][column] = true;
     }
 
     private void connectSites(int neighborSiteIndex, int correspondingSiteIndex) {
@@ -98,12 +96,12 @@ public class Percolation {
 
     public boolean isOpen(int row, int column) {
         validateRowColumn(row, column);
-        return openSites[row - 1][column - 1];
+        return openSites[row][column];
     }
 
     public boolean isFull(int row, int column) {
         validateRowColumn(row, column);
-        if (!openSites[row - 1][column - 1]) return false;
+        if (!openSites[row][column]) return false;
         int correspondingSiteIndex = getSiteIndexFromCoordinates(row, column);
         return sortingAlgorithmForFull.connected(0, correspondingSiteIndex);
     }
