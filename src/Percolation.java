@@ -35,27 +35,52 @@ public class Percolation {
         boolean correspondingSite = sites[correspondingSiteIndex];
         if (correspondingSite) return;
 
-        int top = getTopNeighborSite(row, column);
-        if (sites[top]) {
-            connectSites(top, correspondingSiteIndex);
+        if (isFirstRow(row)) {
+            connectSites(0, correspondingSiteIndex);
+            int bottom = getSiteIndexFromCoordinates(row + 1, column);
+            if(sites[bottom]) {
+                connectSites(bottom, correspondingSiteIndex);
+            }
+        }
+        else if(isLastRow(row)){
+            connectSites(lastSiteIndex, correspondingSiteIndex);
+            connectSites(0, correspondingSiteIndex);
+            int top = getSiteIndexFromCoordinates(row - 1, column);
+            if(sites[top]) {
+                connectSites(top, correspondingSiteIndex);
+            }
+        }
+        else{
+            int bottom = getSiteIndexFromCoordinates(row + 1, column);
+            if(sites[bottom]) {
+                connectSites(bottom, correspondingSiteIndex);
+            }
+            int top = bottom -2*gridLength;
+            if(sites[top]) {
+                connectSites(top, correspondingSiteIndex);
+            }
         }
 
-        int bottom = getBottomSite(row, column);
-        if (sites[bottom]) {
-            connectSites(bottom, correspondingSiteIndex);
+        if (column == gridLength) {
+            int leftSide = getSiteIndexFromCoordinates(row, column - 1);
+            if (sites[leftSide]) {
+                connectSites(leftSide, correspondingSiteIndex);
+            }
         }
-
-        if (column != gridLength) {
+        else if(column ==1) {
             int rightSide = getSiteIndexFromCoordinates(row, column + 1);
             if (sites[rightSide]) {
                 connectSites(rightSide, correspondingSiteIndex);
             }
         }
-
-        if (column != 1) {
+        else {
             int leftSide = getSiteIndexFromCoordinates(row, column - 1);
             if (sites[leftSide]) {
                 connectSites(leftSide, correspondingSiteIndex);
+            }
+            int rightSide = leftSide + 2;
+            if (sites[rightSide]) {
+                connectSites(rightSide, correspondingSiteIndex);
             }
         }
 
@@ -88,23 +113,6 @@ public class Percolation {
 
     public boolean percolates() {
         return sortingAlgorithm.connected(0, lastSiteIndex);
-    }
-
-    private int getBottomSite(int row, int column) {
-        if (isLastRow(row)) {
-            return lastSiteIndex;
-        }
-
-        return getSiteIndexFromCoordinates(row + 1, column);
-    }
-
-    private int getTopNeighborSite(int row, int column) {
-        if (isFirstRow(row)) {
-            return 0;
-        }
-
-        int topNeighbor = getSiteIndexFromCoordinates(row - 1, column);
-        return topNeighbor;
     }
 
     private int getSiteIndexFromCoordinates(int row, int column) {
