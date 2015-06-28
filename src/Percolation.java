@@ -103,10 +103,6 @@ public class Percolation {
 
     public boolean isFull(int row, int column) {
         validateRowColumn(row, column);
-        return isFullWithoutValidation(row, column);
-    }
-
-    private boolean isFullWithoutValidation(int row, int column) {
         if (!openSites[row - 1][column - 1]) return false;
         int correspondingSiteIndex = getSiteIndexFromCoordinates(row, column);
         return sortingAlgorithmForFull.connected(0, correspondingSiteIndex);
