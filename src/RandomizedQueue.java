@@ -126,16 +126,41 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         }
 
         private int getNonTraversedPath(int start){
+            boolean rightDirection = StdRandom.bernoulli();
             int path = start;
-            while(path < Size && traversedPaths[path])
+            if(rightDirection)
             {
-                path++;
+                path = getNonTraveledFromRight(path);
+                if(path == Size) {
+                    path = start - 1;
+                    path = getNonTraveledFromLeft(path);
+                }
             }
-            if(path == Size) path = start-1;
+            else
+            {
+                path = getNonTraveledFromLeft(path);
+                if(path == -1) {
+                    path = start + 1;
+                    path = getNonTraveledFromRight(path);
+                }
+            }
 
+            return path;
+        }
+        private int getNonTraveledFromLeft(int path)
+        {
             while(path >=0 && traversedPaths[path])
             {
                 path--;
+            }
+
+            return path;
+        }
+        private int getNonTraveledFromRight(int path)
+        {
+            while(path < Size && traversedPaths[path])
+            {
+                path++;
             }
 
             return path;
