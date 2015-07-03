@@ -111,11 +111,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
                 throw new java.util.NoSuchElementException();
             }
 
-            int path = StdRandom.uniform(Size);
-            while(traversedPaths[path])
-            {
-                path = StdRandom.uniform(Size);
-            }
+            int path = getNonTraversedPath(StdRandom.uniform(Size));
             Node node = GetNode(path);
 
             traversedPaths[path] = true;
@@ -127,6 +123,22 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         @Override
         public void remove() {
             throw new UnsupportedOperationException();
+        }
+
+        private int getNonTraversedPath(int start){
+            int path = start;
+            while(path < Size && traversedPaths[path])
+            {
+                path++;
+            }
+            if(path == Size) path = start-1;
+
+            while(path >=0 && traversedPaths[path])
+            {
+                path--;
+            }
+
+            return path;
         }
     }
 
