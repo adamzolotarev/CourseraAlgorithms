@@ -4,6 +4,8 @@ public class Percolation {
     private QuickUnionUF sortingAlgorithmForFull;
     private int lastSiteIndex;
     private boolean[][] openSites;
+    private boolean percolates;
+    private boolean[][] fullSites;
 
     public Percolation(int gridLength) {
         if (gridLength <= 0) throw new java.lang.IllegalArgumentException();
@@ -25,6 +27,7 @@ public class Percolation {
         sortingAlgorithm = new QuickUnionUF(numberOfSites);
         sortingAlgorithmForFull = new QuickUnionUF((numberOfSites - 1));
         openSites = new boolean[gridLength+1][gridLength+1];
+        fullSites = new boolean[gridLength][gridLength];
     }
 
     private int GetIndex(int row, int column, int retrievedIndex) {
@@ -102,12 +105,24 @@ public class Percolation {
     public boolean isFull(int row, int column) {
         validateRowColumn(row, column);
         if (!openSites[row][column]) return false;
+        if(fullSites[row-1][column-1]) return true;
+
         int correspondingSiteIndex = getSiteIndexFromCoordinates(row, column);
-        return sortingAlgorithmForFull.connected(0, correspondingSiteIndex);
+        if(sortingAlgorithmForFull.connected(0, correspondingSiteIndex))
+        {
+            fullSites[row-1][column-1] = true;
+            return true;
+        }
+        return false;
     }
 
     public boolean percolates() {
-        return sortingAlgorithm.connected(0, lastSiteIndex);
+        if (percolates) return true;
+        if (sortingAlgorithm.connected(0, lastSiteIndex)) {
+            percolates = true;
+            return true;
+        }
+        return false;
     }
 
     private int getSiteIndexFromCoordinates(int row, int column) {
