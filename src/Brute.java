@@ -4,19 +4,18 @@ import java.util.Arrays;
 public class Brute{
     private static Point[] points;
     public static void main(String[] args){
-        /*String filename = args[0];
+       String filename = args[0];
         In fileStream = new In(filename);
         int N = fileStream.readInt();
-        Point[] a = new Point[N];
+        points = new Point[N];
 
         for (int i = 0; i < N; i++) {
             int x = fileStream.readInt();
             int y = fileStream.readInt();
-            a[i] = new Point(x, y);
-            a[i].draw();
+            points[i] = new Point(x, y);
         }
-*/
-        points = new Point[8];
+
+        /* points = new Point[8];
         points[0] = new Point(10000,0);
         points[1] = new Point(0,10000);
         points[2] = new Point(3000,7000);
@@ -25,7 +24,7 @@ public class Brute{
         points[5] = new Point(3000,4000);
         points[6] = new Point(14000,15000);
         points[7] = new Point(6000,7000);
-
+*/
         realMain(points);
     }
 
