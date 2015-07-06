@@ -10,7 +10,7 @@ public class Fast {
         String filename = args[0];
         printedOut = null;
         printedIndex = 0;
-        //String filename = "E:\\Downloads\\collinear-testing\\collinear\\input8.txt";
+        //String filename = "E:\\Downloads\\collinear-testing\\collinear\\input299.txt";
         In fileStream = new In(filename);
         int N = fileStream.readInt();
         points = new Point[N];
@@ -39,10 +39,11 @@ public class Fast {
                 printedPoint = printedOut[i][1];
             }
 
+            double printedPointSlope = printedOut[i][0].slopeTo(printedOut[i][1]);
             double pointToPrinted = points[0].slopeTo(printedPoint);
             double pointToPoint =points[0].slopeTo(points[1]);
 
-            if ( pointToPrinted == pointToPoint)
+            if ( printedPointSlope == pointToPoint && pointToPoint == pointToPrinted)
                 return true;
         }
         return false;
